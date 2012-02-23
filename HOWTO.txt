@@ -16,11 +16,11 @@ int MyMergeFunc(void* systemData, void*)
 {
 	s3eIOSiCloudDataToMergeWith* data = (s3eIOSiCloudDataToMergeWith*) systemData;
 	
-	// TODO: Merge incoming data with current game state
+	// Merge incoming data with current game state
 	
 	[...]
 	
-	// TODO: Save locally (under cache://)
+	// Save locally to cache://
 	
 	bool savedLocally = [...]
 	
@@ -42,7 +42,10 @@ void Startup()
 void Shutdown()
 {
 	if (isiCloudEnabled)
+	{
 		s3eIOSiCloudStop();
+		s3eIOSiCloudUnregister(S3E_IOSICLOUD_CALLBACK_MERGE, MyMergeFunc);
+	}
 }
 
 void Update()
@@ -53,7 +56,7 @@ void Update()
 
 void SaveGame()
 {
-	// Save locally
+	// Save locally to cache://
 	
 	[...]
 	
