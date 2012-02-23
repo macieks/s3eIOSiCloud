@@ -1,0 +1,14 @@
+#!/usr/bin/env mkb
+# Builder mkb file for the s3eIOSiCloud extension on windows
+platform WIN32
+
+options
+{
+    dll
+    x86
+    output-name="lib/win32/s3eIOSiCloud.dll"
+    output-name-debug="lib/win32/s3eIOSiCloud_d.dll"
+}
+define S3E_BUILD_EXT
+
+subproject s3eIOSiCloud_build

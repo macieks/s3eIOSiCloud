@@ -1,0 +1,65 @@
+#
+# Copyright (C) 2011-2012 Pixel Elephant Pty Ltd
+# All Rights Reserved.
+#
+# You can use this code for commercial and non-commercial purposes without any limitations.
+# The code isn't guaranteed to work.
+# If you found any issue please let me know (maciej@pixelelephant.com)
+#
+callbacks
+
+include:
+
+#include <s3eTypes.h>
+
+/** iCloud event callbacks */
+typedef enum s3eIOSiCloudCallback
+{
+	/**
+	 * Received data to merge with (either regular read or conflicting version).
+	 *
+	 * System data stores a pointer to s3eIOSiCloudDataToMergeWith.
+	 * Return 0 if data was processed successfully, 1 otherwise. Returned value is important
+	 * for the conflict resolution to know if given file version has been successfully processed.
+	 */
+    S3E_IOSICLOUD_CALLBACK_MERGE,
+    S3E_IOSICLOUD_CALLBACK_MAX
+} s3eIOSiCloudCallback;
+
+/** Data to merge application side data with */
+typedef struct s3eIOSiCloudDataToMergeWith
+{
+	/** Data size in bytes */
+	int32 m_DataSize;
+	/** Data */
+	const void* m_Data;
+} s3eIOSiCloudDataToMergeWith;
+
+functions:
+
+/**
+ * Starts iCloud servicing (read, write and conflict resolution) for a specific file.
+ *
+ * Reading operations and conflicts will be notified via S3E_IOSICLOUD_CALLBACK_MERGE callback.
+ * If iCloud isn't available on the device, S3E_RESULT_ERROR is returned.
+ */
+s3eResult s3eIOSiCloudStart(const char* fileName, s3eBool supportConflictResolution) void run_on_os_thread
+
+/**
+ * Stops iCloud servicing for a file for which s3eIOSiCloudStart was previously invoked
+ */
+void s3eIOSiCloudStop() void run_on_os_thread
+
+/**
+ * Tick function; must be called regularly to enable read/write operations retry
+ */
+void s3eIOSiCloudTick() void run_on_os_thread
+
+/**
+ * Starts writing out the data to file.
+ *
+ * The final result of writing to iCloud file isn't reported by any callback.
+ * If other write operation was enqueued at the time of calling this function or if failed
+ * to enqueue the data to write for any other reason, S3E_RESULT_ERROR is returned.
+ */
+s3eResult s3eIOSiCloudWrite(const void* data, int32 dataSize) S3E_RESULT_ERROR run_on_os_thread
