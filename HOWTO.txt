@@ -1,0 +1,63 @@
+// Demonstration of how to use s3eIOSiCloud Marmalade extension
+
+#include "s3eIOSiCloud.h"
+
+struct MySaveGame
+{
+	int a;
+	float b;
+	bool c;
+};
+
+bool isiCloudEnabled = false;
+MySaveGame mySaveGame;
+
+int MyMergeFunc(void* systemData, void*)
+{
+	s3eIOSiCloudDataToMergeWith* data = (s3eIOSiCloudDataToMergeWith*) systemData;
+	
+	// TODO: Merge incoming data with current game state
+	
+	[...]
+	
+	// TODO: Save locally (under cache://)
+	
+	bool savedLocally = [...]
+	
+	// Return success or failure
+	
+	return savedLocally ? 0 : 1;
+}
+
+void Startup()
+{
+	if (!s3eIOSiCloudAvailable())
+		return;
+		
+	s3eIOSiCloudRegister(S3E_IOSICLOUD_CALLBACK_MERGE, MyMergeFunc, NULL);
+	isiCloudEnabled = s3eIOSiCloudStart("my_save_game.txt", S3E_TRUE);
+}
+
+void Shutdown()
+{
+	if (isiCloudEnabled)
+		s3eIOSiCloudStop();
+}
+
+void Update()
+{
+	if (isiCloudEnabled)
+		s3eIOSiCloudTick();
+}
+
+void SaveGame()
+{
+	// Save locally
+	
+	[...]
+	
+	// Save to iCloud
+
+	if (isiCloudEnabled)
+		s3eIOSiCloudWrite(&mySaveGame, sizeof(MySaveGame));
+}
