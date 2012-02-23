@@ -34,8 +34,9 @@ void Startup()
 	if (!s3eIOSiCloudAvailable())
 		return;
 		
-	s3eIOSiCloudRegister(S3E_IOSICLOUD_CALLBACK_MERGE, MyMergeFunc, NULL);
-	isiCloudEnabled = s3eIOSiCloudStart("my_save_game.txt", S3E_TRUE);
+	isiCloudEnabled =
+		s3eIOSiCloudRegister(S3E_IOSICLOUD_CALLBACK_MERGE, MyMergeFunc, NULL) == S3E_RESULT_SUCCESS &&
+		s3eIOSiCloudStart("my_save_game.txt", S3E_TRUE) == S3E_RESULT_SUCCESS;
 }
 
 void Shutdown()
