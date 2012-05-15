@@ -6,6 +6,11 @@ Info:
 
 For iCloud setup instructions read SETUP.txt
 
+IMPORTANT: To avoid issues with pre 5.0 iOS make sure to weak link with Foundation module (to avoid using classes not present
+in former SDK versions). More specifically you have to make sure that your iphone-link-opts contains
+'-weak_framework Foundation'. In MKB file this should look as follows:
+iphone-link-opts='-weak_framework Foundation'
+
 This extension provides basic support for reading / writing and conflict resolution for a single file.
 The interface is made as simple as possible and it doesn't even make distinction between regular reading
 from iCloud and iCloud conflict resolution - in both cases user simple gets the S3E_IOSICLOUD_CALLBACK_MERGE
@@ -16,8 +21,6 @@ More information on how to use the code can be found in HOWTO.txt
 
 The extension is available for iOS only although simple Windows based simulation code has been implemented for
 testing / debugging purposes.
-
-To avoid issues with pre 5.0 iOS make sure to weak link with Foundation module (to avoid using classes not present in former SDK versions).
 
 License:
 --------
