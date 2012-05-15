@@ -1,0 +1,45 @@
+s3eIOSiCloud extension for Marmalade
+====================================
+
+SETUP (by Steve Monks, http://www.madewithmarmalade.com/devnet/forum/7398)
+
+There's quite a bit of iOS faffing required before iCloud support works.
+
+Having spent about half a day figuring this out I thought I'd share my experiences and hopefully save anyone else to pain of having to work this out from scratch.
+
+First off, you need to enable iCloud support for you app-id in the iOS provisioning portal and download a new provisioning profile. The provisioning profile should now contain, amongst other things, the following line;
+<key>com.apple.developer.ubiquity-container-identifiers</key>
+If not (and mine didn't at first until I disabled then re-enabled iCloud support), you will need to renew the profile and download a new copy.
+
+Secondly, you need to specify an application-identifier in the info.plist that matches the one in your provisioning profile. I couldn't see a way to do this using the deployment tool so I ended up using a custom info.plist and adding it manually. If you are not already using a custom info.plist the easiest way to create one is to copy the default info.plist from the deployment folder to your source folder and set the info.plist option in the deployment tool to use this rather than generating its own.
+
+Open your provisioning profile in a text editor (do not edit it) and search for;
+<key>application-identifier</key>
+Copy this and the line immediately below it (which should be the full ID of your app) and add them to your info.plist file anywhere between the
+<dict>
+and
+</dict>
+tags.
+
+During deployment, with the application-identifier correctly set, Marmalade will generate an entitlement file and this will need some additional information adding to it. This file is generated using the following Python file;
+[install folder]\s3e\deploy\plugins\iphone\sign_app.py
+where [install folder] is where you have Marmalade installed on your computer (e.g. C:\Marmalade\5.2\).
+
+Make a back up of this file (very important to do this, as if you break this file in some way you wont be able to deploy this or any other app using the deployment tool) and then open the original in a text editor and search for the following pair of lines;
+\t<key>application-identifier</key>
+\t<string>%s.%s</string>
+Immediately below these, but before the line which reads;
+\t<key>get-task-allow</key>
+add the following;
+\t<key>com.apple.developer.ubiquity-container-identifiers</key>
+\t<array>
+\t<string>%s.%s</string>
+\t</array>
+\t<key>com.apple.developer.ubiquity-kvstore-identifier</key>
+\t<string>%s.%s</string>
+
+A couple of lines down there is a line which reads;
+""" % (profile_uid, app_id, allow, aps)
+edit it so it reads;
+""" % (profile_uid, app_id, profile_uid, app_id, profile_uid, app_id, allow, aps)
+Add the relevant calls to Maciej's library to your app, rebuild and you should be good to go.

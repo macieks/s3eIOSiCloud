@@ -98,7 +98,7 @@ s3eResult s3eIOSiCloudStart(const char* fileName, s3eBool supportConflictResolut
     IwTrace(IOSICLOUD_VERBOSE, ("calling s3eIOSiCloud[2] func: s3eIOSiCloudStart"));
 
     if (!_extLoad())
-        return void;
+        return S3E_RESULT_ERROR;
 
     return g_Ext.m_s3eIOSiCloudStart(fileName, supportConflictResolution);
 }

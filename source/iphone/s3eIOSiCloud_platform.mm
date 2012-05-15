@@ -347,17 +347,6 @@ static void s3eIOSiCloudMergeConflictComplete(uint32 deviceID, int32 notificatio
 
 s3eResult s3eIOSiCloudInit_platform()
 {
-    NSURL* ubiq = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier: nil];
-	if (!ubiq)
-	{
-		g_data.m_IsAvailable = false;
-		IwTrace(IOSICLOUD, ("No iCloud support"));
-		return S3E_RESULT_SUCCESS;
-	}
-
-	g_data.m_IsAvailable = true;
-	IwTrace(IOSICLOUD, ("iCloud access at '%s'", [[ubiq absoluteString] UTF8String]));
-  
     return S3E_RESULT_SUCCESS;
 }
 
@@ -367,9 +356,37 @@ void s3eIOSiCloudTerminate_platform()
 
 s3eResult s3eIOSiCloudStart_platform(const char* fileName, s3eBool supportConflictResolution)
 {
-	if (!g_data.m_IsAvailable)
-		return S3E_RESULT_ERROR;
+    // Verify we're runnig iOS 5.0 or later (otherwise we'd crash while trying to get NSURL for ubiquity container identifier)
+    
+    NSArray* versionCompatibility = [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
 
+    if ([versionCompatibility count] >= 2)
+    {
+        IwTrace(IOSICLOUD, ("Running iOS %d.%d.", [[versionCompatibility objectAtIndex:0] intValue], [[versionCompatibility objectAtIndex:1] intValue]));
+    }
+
+    if ([[versionCompatibility objectAtIndex:0] intValue] < 5)
+    {
+        g_data.m_IsAvailable = false;
+		IwTrace(IOSICLOUD, ("No iCloud support on iOS earlier than 5.0"));
+		return S3E_RESULT_ERROR;
+    }
+
+	// Verify iCloud is available on device
+
+    NSURL* ubiq = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier: nil];
+	if (!ubiq)
+	{
+		g_data.m_IsAvailable = false;
+		IwTrace(IOSICLOUD, ("iCloud unavailable - failed to get NSURL for ubiquity container identifier"));
+		return S3E_RESULT_ERROR;
+	}
+
+	g_data.m_IsAvailable = true;
+	IwTrace(IOSICLOUD, ("iCloud access at '%s'", [[ubiq absoluteString] UTF8String]));
+
+    // Store input data
+    
     g_data.m_SupportConflictResolution = supportConflictResolution;
 	strcpy(g_data.m_Name, fileName);
 	
